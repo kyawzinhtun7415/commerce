@@ -1,0 +1,71 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+  <div class="row">
+    <div class="col-lg-12">
+      {% if messages %}
+        <div class="alert alert-info">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if has_won %}
+        <div class="alert alert-success">
+          You have won this auction!
+        </div>
+      {% endif %} 
+
+      <h2>{{ listing.title }}</h2>
+      <img src="{{ listing.image }}" alt="{{ listing.title }}" class="img-fluid">
+      <p>{{ listing.description }}</p>
+      <p>{{ listing.current_price }}</p>
+
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'toggle_watchlist' listing.id %}">
+          {% csrf_token %}
+          {% if is_in_watchlist %}
+            <input type="submit" value="Remove from Watchlist" class="btn btn-danger">
+          {% else %}
+            <input type="submit" value="Add to Watchlist" class="btn btn-primary">
+          {% endif %}
+        </form>
+
+        <form method="post" action="{% url 'place_bid' listing.id %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <input type="number" name="bid" min="{{ listing.current_price }}" class="form-control">
+          </div>
+          <input type="submit" value="Place Bid" class="btn btn-primary">
+        </form>
+
+        {% if user == listing.owner %}
+          <form method="post" action="{% url 'close_auction' listing.id %}">
+            {% csrf_token %}
+            <input type="submit" value="Close Auction" class="btn btn-danger">
+          </form>
+        {% endif %}
+        
+
+        <form method="post" action="{% url 'add_comment' listing.id %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <textarea name="comment" class="form-control"></textarea>
+          </div>
+          <input type="submit" value="Add Comment" class="btn btn-primary">
+        </form>
+        
+        {% for comment in comments %}
+          <div class="card mt-2">
+            <div class="card-body">
+              <h5 class="card-title">{{ comment.user }}</h5>
+              <h6 class="card-subtitle mb-2 text-muted">{{ comment.created_at }}</h6>
+              <p class="card-text">{{ comment.text }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

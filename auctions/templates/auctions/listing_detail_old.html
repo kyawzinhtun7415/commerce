@@ -1,0 +1,57 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if has_won %}
+        <p>You have won this auction!</p>
+    {% endif %} 
+
+    <h2>{{ listing.title }}</h2>
+    <img src="{{ listing.image }}" alt="{{ listing.title }}">
+    <p>{{ listing.description }}</p>
+    <p>{{ listing.current_price }}</p>
+
+    {% if user.is_authenticated %}
+        <form method="post" action="{% url 'toggle_watchlist' listing.id %}">
+            {% csrf_token %}
+            {% if is_in_watchlist %}
+                <input type="submit" value="Remove from Watchlist">
+            {% else %}
+                <input type="submit" value="Add to Watchlist">
+            {% endif %}
+        </form>
+
+        <form method="post" action="{% url 'place_bid' listing.id %}">
+            {% csrf_token %}
+            <input type="number" name="bid" min="{{ listing.current_price }}">
+            <input type="submit" value="Place Bid">
+        </form>
+
+        {% if user == listing.owner %}
+            <form method="post" action="{% url 'close_auction' listing.id %}">
+                {% csrf_token %}
+                <input type="submit" value="Close Auction">
+            </form>
+        {% endif %}
+        
+
+        <form method="post" action="{% url 'add_comment' listing.id %}">
+            {% csrf_token %}
+            <textarea name="comment"></textarea>
+            <input type="submit" value="Add Comment">
+        </form>
+        
+        {% for comment in comments %}
+            <p> {{ comment.text }} {{ comment.user }} {{ comment.created_at }}</p>
+        {% endfor %}
+
+    {% endif %}
+{% endblock %}

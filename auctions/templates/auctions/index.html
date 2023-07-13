@@ -1,0 +1,28 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+  <div class="container my-4">
+    <h2 class="mb-4">Active Listings</h2>
+    <div class="row">
+      {% for auction in active_auctions %}
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">{{ auction.title }}</h5>
+              {% if auction.image %}
+                <img src="{{ auction.image }}" class="card-img-top mb-3" alt="{{ auction.title }}">
+              {% endif %}
+              <h6 class="card-subtitle mb-2 text-muted">Current Price: {{ auction.current_price }}</h6>
+              <p class="card-text">{{ auction.description }}</p>
+              <a href="{% url 'listing_detail' auction.id %}" class="btn btn-primary">View Listing</a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <p class="text-center">No active auctions.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
